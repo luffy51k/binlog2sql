@@ -25,9 +25,9 @@ Normal maintenance. Applied in the online environment of some companies.
     * Python 2.7, 3.4+
     * MySQL 5.6, 5.7
     
-Tested environment
-Python 2.7, 3.4+
-MySQL 5.6, 5.7
+Tested environment:
+* Python 2.7, 3.4+
+* MySQL 5.6, 5.7
 
 安装
 ==============
@@ -43,6 +43,8 @@ Please search for and solve the problem of git and pip installation.
 =========
 
 ### MySQL server必须设置以下参数:
+use
+The following parameters must be set for the MySQL server:
 
     [mysqld]
     server_id = 1
@@ -51,21 +53,25 @@ Please search for and solve the problem of git and pip installation.
     binlog_format = row
     binlog_row_image = full
 
-### user需要的最小权限集合：
+### user需要的最小权限集合 (Recommended authorization)：
+
 
     select, super/replication client, replication slave
     
     建议授权
     GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 
 
-**权限说明**
+**权限说明 (Permission Description)**
 
 * select：需要读取server端information_schema.COLUMNS表，获取表结构的元信息，拼接成可视化的sql语句
 * super/replication client：两个权限都可以，需要执行'SHOW MASTER STATUS', 获取server端的binlog列表
 * replication slave：通过BINLOG_DUMP协议获取binlog内容的权限
 
+* select: need to read the information_schema.COLUMNS table on the server side to obtain the meta-information of the table structure and stitch it into a visual SQL statement
+* super/replication client: Both permissions are ok, you need to execute'SHOW MASTER STATUS' to get the binlog list on the server side
+* Replication slave: access to binlog content through BINLOG_DUMP protocol
 
-### 基本用法
+### 基本用法 (Basic usage)
 
 
 **解析出标准SQL**
@@ -96,7 +102,7 @@ UPDATE `test`.`test3` SET `addtime`='2016-12-10 13:03:22', `data`='中文', `id`
 
 -h host; -P port; -u user; -p password
 
-**解析模式**
+**解析模式(Analysis Mode)**
 
 --stop-never 持续解析binlog。可选。默认False，同步至执行命令时最新的binlog位置。
 
@@ -106,7 +112,17 @@ UPDATE `test`.`test3` SET `addtime`='2016-12-10 13:03:22', `data`='中文', `id`
 
 --back-interval -B模式下，每打印一千行回滚SQL，加一句SLEEP多少秒，如不想加SLEEP，请设为0。可选。默认1.0。
 
-**解析范围控制**
+```
+--stop-never Continue to parse binlog. Optional. The default is False, sync to the latest binlog location when the command is executed.
+
+-K, --no-primary-key Remove the primary key from the INSERT statement. Optional. Default False
+
+-B, --flashback Generate rollback SQL, which can parse large files without memory limitation. Optional. The default is False. It cannot be added at the same time as stop-never or no-primary-key.
+
+--back-interval -B mode, for every thousand lines of SQL to be rolled back, how many seconds to add a SLEEP, if you do not want to add SLEEP, please set it to 0. Optional. The default is 1.0.
+```
+
+**解析范围控制 (Resolution range control)**
 
 --start-file 起始解析文件，只需文件名，无需全路径 。必须。
 
@@ -120,7 +136,21 @@ UPDATE `test`.`test3` SET `addtime`='2016-12-10 13:03:22', `data`='中文', `id`
 
 --stop-datetime 终止解析时间，格式'%Y-%m-%d %H:%M:%S'。可选。默认不过滤。
 
-**对象过滤**
+```
+--start-file Start parsing the file, only the file name is required, not the full path. have to.
+
+--start-position/--start-pos start parsing position. Optional. The default is the starting position of start-file.
+
+--stop-file/--end-file Stop parsing the file. Optional. The default is the same file as start-file. If the resolution mode is stop-never, this option is invalid.
+
+--stop-position/--end-pos stop parsing position. Optional. The default is the last position of stop-file; if the parsing mode is stop-never, this option is invalid.
+
+--start-datetime Start parsing time, format'%Y-%m-%d %H:%M:%S'. Optional. No filtering by default.
+
+--stop-datetime stop parsing time, format'%Y-%m-%d %H:%M:%S'. Optional. No filtering by default.
+```
+
+**对象过滤(Object filtering)**
 
 -d, --databases 只解析目标db的sql，多个库用空格隔开，如-d db1 db2。可选。默认为空。
 
@@ -130,14 +160,24 @@ UPDATE `test`.`test3` SET `addtime`='2016-12-10 13:03:22', `data`='中文', `id`
 
 --sql-type 只解析指定类型，支持INSERT, UPDATE, DELETE。多个类型用空格隔开，如--sql-type INSERT DELETE。可选。默认为增删改都解析。用了此参数但没填任何类型，则三者都不解析。
 
-### 应用案例
+```
+-d, --databases Only parse the sql of the target db, multiple libraries are separated by spaces, such as -d db1 db2. Optional. The default is empty.
 
-#### **误删整张表数据，需要紧急回滚**
+-t, --tables Only parse the sql of the target table, multiple tables are separated by spaces, such as -t tbl1 tbl2. Optional. The default is empty.
 
-闪回详细介绍可参见example目录下《闪回原理与实战》[example/mysql-flashback-priciple-and-practice.md](./example/mysql-flashback-priciple-and-practice.md)
+--only-dml Only parse dml, ignore ddl. Optional. The default is False.
+
+--sql-type Only parse the specified type, support INSERT, UPDATE, DELETE. Multiple types are separated by spaces, such as --sql-type INSERT DELETE. Optional. The default is to resolve additions, deletions and changes. If this parameter is used but no type is filled, the three will not be resolved.
+```
+
+### 应用案例 (Applications)
+
+#### **误删整张表数据，需要紧急回滚 (Delete the entire table data by mistake and need an emergency rollback)**
+
+闪回详细介绍可参见example目录下《闪回原理与实战》(For a detailed introduction of flashback, please refer to "Flashback Principles and Practices" in the example directory) [example/mysql-flashback-priciple-and-practice.md](./example/mysql-flashback-priciple-and-practice.md)
 
 ```bash
-test库tbl表原有数据
+test库tbl表原有数据 (Original data of test library tbl table)
 mysql> select * from tbl;
 +----+--------+---------------------+
 | id | name   | addtime             |
@@ -157,9 +197,9 @@ mysql> select * from tbl;
 Empty set (0.00 sec)
 ```
 
-**恢复数据步骤**：
+**恢复数据步骤 (Steps to recover data)**：
 
-1. 登录mysql，查看目前的binlog文件
+1. 登录mysql，查看目前的binlog文件 (Log in to mysql, view the current binlog file)
 
 	```bash
 	mysql> show master status;
@@ -172,6 +212,7 @@ Empty set (0.00 sec)
 	```
 
 2. 最新的binlog文件是mysql-bin.000052，我们再定位误操作SQL的binlog位置。误操作人只能知道大致的误操作时间，我们根据大致时间过滤数据。
+(The latest binlog file is mysql-bin.000052, we then locate the binlog location of the misoperation SQL. The misoperator can only know the approximate misoperation time, and we filter the data based on the approximate time.)
 
 	```bash
 	shell> python binlog2sql/binlog2sql.py -h127.0.0.1 -P3306 -uadmin -p'admin' -dtest -ttbl --start-file='mysql-bin.000052' --start-datetime='2016-12-13 20:25:00' --stop-datetime='2016-12-13 20:30:00'
@@ -185,6 +226,7 @@ Empty set (0.00 sec)
 	```
 
 3. 我们得到了误操作sql的准确位置在728-938之间，再根据位置进一步过滤，使用flashback模式生成回滚sql，检查回滚sql是否正确(注：真实环境下，此步经常会进一步筛选出需要的sql。结合grep、编辑器等)
+(We got the exact position of the misoperation sql between 728-938, and then further filter according to the position, use the flashback mode to generate the rollback sql, and check whether the rollback sql is correct (Note: In a real environment, this step is often further filtered out The required sql. Combine grep, editor, etc.))
 
 	```bash
 	shell> python binlog2sql/binlog2sql.py -h127.0.0.1 -P3306 -uadmin -p'admin' -dtest -ttbl --start-file='mysql-bin.000052' --start-position=3346 --stop-position=3556 -B > rollback.sql | cat
@@ -196,7 +238,7 @@ Empty set (0.00 sec)
 	```
 
 4. 确认回滚sql正确，执行回滚语句。登录mysql确认，数据回滚成功。
-
+(Confirm that the rollback SQL is correct and execute the rollback statement. Log in to mysql to confirm that the data rollback is successful.)
 	```bash
 	shell> mysql -h127.0.0.1 -P3306 -uadmin -p'admin' < rollback.sql
 
