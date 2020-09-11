@@ -2,6 +2,7 @@ binlog2sql
 ========================
 
 从MySQL binlog解析出你要的SQL。根据不同选项，你可以得到原始SQL、回滚SQL、去除主键的INSERT SQL等。
+(Parse out the SQL you want from MySQL binlog. According to different options, you can get original SQL, rollback SQL, INSERT SQL with primary key removed, etc.)
 
 用途
 ===========
@@ -10,6 +11,11 @@ binlog2sql
 * 主从切换后新master丢数据的修复
 * 从binlog生成标准SQL，带来的衍生功能
 
+use
+Fast data rollback (flashback)
+Repair of lost data of new master after master-slave switch
+Derivative functions brought by standard SQL generated from binlog project status
+Normal maintenance. Applied in the online environment of some companies.
 
 项目状态
 ===
@@ -18,16 +24,20 @@ binlog2sql
 * 已测试环境
     * Python 2.7, 3.4+
     * MySQL 5.6, 5.7
-
+    
+Tested environment
+Python 2.7, 3.4+
+MySQL 5.6, 5.7
 
 安装
 ==============
-
+installation
 ```
 shell> git clone https://github.com/danfengcao/binlog2sql.git && cd binlog2sql
 shell> pip install -r requirements.txt
 ```
 git与pip的安装问题请自行搜索解决。
+Please search for and solve the problem of git and pip installation.
 
 使用
 =========
