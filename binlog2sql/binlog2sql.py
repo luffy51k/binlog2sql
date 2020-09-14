@@ -76,7 +76,8 @@ class Binlog2sql(object):
         e_start_pos, last_pos = stream.log_pos, stream.log_pos
         # to simplify code, we do not use flock for tmp_file.
         tmp_file = create_unique_file('%s.%s' % (self.conn_setting['host'], self.conn_setting['port']))
-        with self.connection as cursor:
+        sql2file = '/var/log/sql2file'
+        with temp_open(tmp_file, "w") as f_tmp, temp_open(sql2file, "w") as f, self.connection as cursor:
             for binlog_event in stream:
                 if not self.stop_never:
                     try:
@@ -113,14 +114,11 @@ class Binlog2sql(object):
                         sql = concat_sql_from_binlog_event(cursor=cursor, binlog_event=binlog_event, no_pk=self.no_pk,
                                                            row=row, flashback=self.flashback, e_start_pos=e_start_pos)
                         if self.flashback:
-                            with temp_open(tmp_file, "w") as f_tmp:
-                                f_tmp.write(sql + '\n')
+                            f_tmp.write(sql + '\n')
                         else:
                             print(sql)
                             if self.sql2file:
-                                print(self.sql2file)
-                                with temp_open(self.sql2file, "w") as f:
-                                    f.write(sql + '\n')
+                                f.write(sql + '\n')
 
                 if not (isinstance(binlog_event, RotateEvent) or isinstance(binlog_event, FormatDescriptionEvent)):
                     last_pos = binlog_event.packet.log_pos
@@ -128,7 +126,7 @@ class Binlog2sql(object):
                     break
 
             stream.close()
-            
+            f_tmp.close()
             if self.flashback:
                 self.print_rollback_sql(filename=tmp_file)
         return True
