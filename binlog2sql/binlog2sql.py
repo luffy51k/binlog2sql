@@ -127,7 +127,7 @@ class Binlog2sql(object):
                     break
 
             stream.close()
-            f_tmp.close()
+            
             if self.flashback:
                 self.print_rollback_sql(filename=tmp_file)
         return True
