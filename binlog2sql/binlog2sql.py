@@ -6,7 +6,7 @@ import datetime
 import time
 import pymysql
 from pymysqlreplication import BinLogStreamReader
-from pymysqlreplication.event import QueryEvent, RotateEvent, FormatDescriptionEvent
+from pymysqlreplication.event import QueryEvent, RotateEvent, FormatDescriptionEvent, GtidEvent
 from binlog2sql_util import command_line_args, concat_sql_from_binlog_event, create_unique_file, temp_open, \
     reversed_lines, is_dml_event, event_type
 
@@ -101,7 +101,9 @@ class Binlog2sql(object):
                         break
                     # else:
                     #     raise ValueError('unknown binlog file or position')
-
+                if isinstance(binlog_event, GtidEvent):
+                    print(binlog_event)
+                
                 if isinstance(binlog_event, QueryEvent) and binlog_event.query == 'BEGIN':
                     e_start_pos = last_pos
 
