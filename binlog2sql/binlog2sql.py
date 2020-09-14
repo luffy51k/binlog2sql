@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import dumper
+
 import sys
 import datetime
 import time
@@ -102,8 +104,9 @@ class Binlog2sql(object):
                     # else:
                     #     raise ValueError('unknown binlog file or position')
                 if isinstance(binlog_event, GtidEvent):
-                    print(binlog_event['packet'].__dict__)
-                
+                    # print(binlog_event['packet'].__dict__)
+                    dumper.dump(binlog_event)
+                    
                 if isinstance(binlog_event, QueryEvent) and binlog_event.query == 'BEGIN':
                     e_start_pos = last_pos
 
