@@ -104,7 +104,11 @@ class Binlog2sql(object):
                     # else:
                     #     raise ValueError('unknown binlog file or position')
                 if isinstance(binlog_event, GtidEvent):
-                    print("============================================> gtid next: %s" % binlog_event.gtid)
+                    gtid = "============================================> gtid next: %s" % binlog_event.gtid
+                    if self.sql2file:
+                        sql2file_path = self.sql2file + ".{}.log".format(current_time)
+                        save_sql2file(sql2file_path, gtid)
+                        
                     # binlog_event.dump()
                     # dumper.dump(binlog_event.packet.gtid)
                     
