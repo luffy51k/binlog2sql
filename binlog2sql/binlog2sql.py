@@ -118,6 +118,7 @@ class Binlog2sql(object):
                         else:
                             print(sql)
                             if self.sql2file:
+                                print(self.sql2file)
                                 with temp_open(self.sql2file, "w") as f:
                                     f.write(sql + '\n')
 
