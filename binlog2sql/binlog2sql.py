@@ -103,7 +103,7 @@ class Binlog2sql(object):
                     # else:
                     #     raise ValueError('unknown binlog file or position')
                 if isinstance(binlog_event, GtidEvent):
-                    _time = datetime.datetime.fromtimestamp(binlog_event.timestamp).isoformat()
+                    _time = datetime.datetime.fromtimestamp(binlog_event.timestamp)
                     gtid = "%s ============================================> gtid next: %s" % (_time, binlog_event.gtid)
                     if self.sql2file:
                         sql2file_path = self.sql2file + ".{}.log".format(current_time)
