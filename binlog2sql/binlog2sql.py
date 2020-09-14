@@ -120,8 +120,8 @@ class Binlog2sql(object):
                             if self.sql2file:
                                 t = time.localtime()
                                 current_time = time.strftime("%H%M%S", t)
-                                sql2file_path = sql2file_path + ".{}.log".format(current_time)
-                                save_sql2file(self.sql2file, sql)
+                                sql2file_path = self.sql2file + ".{}.log".format(current_time)
+                                save_sql2file(sql2file_path, sql)
 
                 if not (isinstance(binlog_event, RotateEvent) or isinstance(binlog_event, FormatDescriptionEvent)):
                     last_pos = binlog_event.packet.log_pos
