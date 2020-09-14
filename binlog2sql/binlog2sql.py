@@ -3,6 +3,7 @@
 
 import sys
 import datetime
+import time
 import pymysql
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.event import QueryEvent, RotateEvent, FormatDescriptionEvent
@@ -117,6 +118,9 @@ class Binlog2sql(object):
                         else:
                             print(sql)
                             if self.sql2file:
+                                t = time.localtime()
+                                current_time = time.strftime("%H%M%S", t)
+                                sql2file_path = sql2file_path + ".{}.log".format(current_time)
                                 save_sql2file(self.sql2file, sql)
 
                 if not (isinstance(binlog_event, RotateEvent) or isinstance(binlog_event, FormatDescriptionEvent)):
