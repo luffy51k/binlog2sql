@@ -104,7 +104,7 @@ class Binlog2sql(object):
                     # else:
                     #     raise ValueError('unknown binlog file or position')
                 if isinstance(binlog_event, GtidEvent):
-                    print(binlog_event.gtid)
+                    print("============================================> %s" % binlog_event.gtid)
                     # binlog_event.dump()
                     # dumper.dump(binlog_event.packet.gtid)
                     
