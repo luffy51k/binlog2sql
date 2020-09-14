@@ -103,8 +103,8 @@ class Binlog2sql(object):
                         break
                     # else:
                     #     raise ValueError('unknown binlog file or position')
-                if isinstance(binlog_event, GtidEvent):
-                    print(binlog_event.gtid)
+                # if isinstance(binlog_event, GtidEvent):
+                #     print(binlog_event.gtid)
                     # binlog_event.dump()
                     # dumper.dump(binlog_event.packet.gtid)
                     
@@ -118,12 +118,14 @@ class Binlog2sql(object):
                         # print(sql)
                         pass
                 elif is_dml_event(binlog_event) and event_type(binlog_event) in self.sql_type:
+                    print(binlog_event.gtid)
                     for row in binlog_event.rows:
                         sql = concat_sql_from_binlog_event(cursor=cursor, binlog_event=binlog_event, no_pk=self.no_pk,
                                                            row=row, flashback=self.flashback, e_start_pos=e_start_pos)
                         if self.flashback:
                             f_tmp.write(sql + '\n')
                         else:
+                            
                             print(sql)
                             # if self.sql2file:
                             #     sql2file_path = self.sql2file + ".{}.log".format(current_time)
