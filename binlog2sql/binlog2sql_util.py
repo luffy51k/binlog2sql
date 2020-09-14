@@ -91,7 +91,8 @@ def parse_args():
                        help='only print dml, ignore ddl')
     event.add_argument('--sql-type', dest='sql_type', type=str, nargs='*', default=['INSERT', 'UPDATE', 'DELETE'],
                        help='Sql type you want to process, support INSERT, UPDATE, DELETE.')
-
+    event.add_argument('--sql2file', dest='sql2file', type=str, help='Save sql to file path')
+    
     # exclusive = parser.add_mutually_exclusive_group()
     parser.add_argument('-K', '--no-primary-key', dest='no_pk', action='store_true',
                         help='Generate insert sql without primary key if exists', default=False)
