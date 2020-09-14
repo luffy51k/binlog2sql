@@ -11,7 +11,7 @@ from binlog2sql_util import command_line_args, concat_sql_from_binlog_event, cre
 
 
 def save_sql2file(sql2file_path, sql):
-    with open(sql2file_path, "w") as f:
+    with open(sql2file_path, "a") as f:
         f.write(sql + '\n')
 
 
