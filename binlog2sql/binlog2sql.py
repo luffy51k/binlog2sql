@@ -102,13 +102,14 @@ class Binlog2sql(object):
                         break
                     # else:
                     #     raise ValueError('unknown binlog file or position')
+                gtid = -1
                 if isinstance(binlog_event, GtidEvent):
-                    # _time = datetime.datetime.fromtimestamp(binlog_event.timestamp)
-                    
-                    gtid = "%s ============================================> gtid next: %s" % (binlog_event.timestamp, binlog_event.gtid)
-                    if self.sql2file:
-                        sql2file_path = self.sql2file + ".{}.log".format(current_time)
-                        save_sql2file(sql2file_path, gtid)
+                    gtid = binlog_event.gtid
+                    # _time = datetime.datetime.fromtimestamp(binlog_event.timestamp).isoformat()
+                    # gtid = "%s ============================================> gtid next: %s" % (_time, binlog_event.gtid)
+                    # if self.sql2file:
+                    #     sql2file_path = self.sql2file + ".{}.log".format(current_time)
+                    #     save_sql2file(sql2file_path, gtid)
                         
                     # binlog_event.dump()
                     # dumper.dump(binlog_event.packet.gtid)
@@ -125,7 +126,7 @@ class Binlog2sql(object):
                 elif is_dml_event(binlog_event) and event_type(binlog_event) in self.sql_type:
                     for row in binlog_event.rows:
                         sql = concat_sql_from_binlog_event(cursor=cursor, binlog_event=binlog_event, no_pk=self.no_pk,
-                                                           row=row, flashback=self.flashback, e_start_pos=e_start_pos)
+                                                           row=row, flashback=self.flashback, e_start_pos=e_start_pos, gtid=gtid)
                         if self.flashback:
                             f_tmp.write(sql + '\n')
                         else:
