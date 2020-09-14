@@ -7,7 +7,7 @@ import argparse
 import datetime
 import getpass
 from contextlib import contextmanager
-from pymysqlreplication.event import QueryEvent
+from pymysqlreplication.event import QueryEvent, GtidEvent
 from pymysqlreplication.row_event import (
     WriteRowsEvent,
     UpdateRowsEvent,
@@ -168,6 +168,8 @@ def event_type(event):
 def concat_sql_from_binlog_event(cursor, binlog_event, row=None, e_start_pos=None, flashback=False, no_pk=False):
     if flashback and no_pk:
         raise ValueError('only one of flashback or no_pk can be True')
+    if isinstance(binlog_event, GtidEvent):
+        print(binlog_event)
     if not (isinstance(binlog_event, WriteRowsEvent) or isinstance(binlog_event, UpdateRowsEvent)
             or isinstance(binlog_event, DeleteRowsEvent) or isinstance(binlog_event, QueryEvent)):
         raise ValueError('binlog_event must be WriteRowsEvent, UpdateRowsEvent, DeleteRowsEvent or QueryEvent')
