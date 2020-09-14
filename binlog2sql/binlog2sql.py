@@ -10,11 +10,16 @@ from binlog2sql_util import command_line_args, concat_sql_from_binlog_event, cre
     reversed_lines, is_dml_event, event_type
 
 
+def save_sql2file(sql2file_path, sql):
+    with temp_open(sql2file_path, "w") as f:
+        f.write(sql + '\n')
+
+
 class Binlog2sql(object):
 
     def __init__(self, connection_settings, start_file=None, start_pos=None, end_file=None, end_pos=None,
                  start_time=None, stop_time=None, only_schemas=None, only_tables=None, no_pk=False,
-                 flashback=False, stop_never=False, back_interval=1.0, only_dml=True, sql_type=None):
+                 flashback=False, stop_never=False, back_interval=1.0, only_dml=True, sql_type=None, sql2file=None):
         """
         conn_setting: {'host': 127.0.0.1, 'port': 3306, 'user': user, 'passwd': passwd, 'charset': 'utf8'}
         """
@@ -41,7 +46,8 @@ class Binlog2sql(object):
         self.no_pk, self.flashback, self.stop_never, self.back_interval = (no_pk, flashback, stop_never, back_interval)
         self.only_dml = only_dml
         self.sql_type = [t.upper() for t in sql_type] if sql_type else []
-
+        self.sql2file = sql2file
+        
         self.binlogList = []
         self.connection = pymysql.connect(**self.conn_setting)
         with self.connection as cursor:
@@ -110,6 +116,8 @@ class Binlog2sql(object):
                             f_tmp.write(sql + '\n')
                         else:
                             print(sql)
+                            if self.sql2file:
+                                save_sql2file(self.sql2file, sql)
 
                 if not (isinstance(binlog_event, RotateEvent) or isinstance(binlog_event, FormatDescriptionEvent)):
                     last_pos = binlog_event.packet.log_pos
@@ -147,5 +155,6 @@ if __name__ == '__main__':
                             end_file=args.end_file, end_pos=args.end_pos, start_time=args.start_time,
                             stop_time=args.stop_time, only_schemas=args.databases, only_tables=args.tables,
                             no_pk=args.no_pk, flashback=args.flashback, stop_never=args.stop_never,
-                            back_interval=args.back_interval, only_dml=args.only_dml, sql_type=args.sql_type)
+                            back_interval=args.back_interval, only_dml=args.only_dml, sql_type=args.sql_type, 
+                            sql2file=args.sql2file)
     binlog2sql.process_binlog()
