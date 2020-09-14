@@ -77,6 +77,8 @@ class Binlog2sql(object):
         e_start_pos, last_pos = stream.log_pos, stream.log_pos
         # to simplify code, we do not use flock for tmp_file.
         tmp_file = create_unique_file('%s.%s' % (self.conn_setting['host'], self.conn_setting['port']))
+        t = time.localtime()
+        current_time = time.strftime("%H%M%S", t)
         with temp_open(tmp_file, "w") as f_tmp, self.connection as cursor:
             for binlog_event in stream:
                 if not self.stop_never:
@@ -118,8 +120,6 @@ class Binlog2sql(object):
                         else:
                             print(sql)
                             if self.sql2file:
-                                t = time.localtime()
-                                current_time = time.strftime("%H%M%S", t)
                                 sql2file_path = self.sql2file + ".{}.log".format(current_time)
                                 save_sql2file(sql2file_path, sql)
 
