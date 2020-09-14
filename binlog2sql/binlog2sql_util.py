@@ -176,8 +176,8 @@ def concat_sql_from_binlog_event(cursor, binlog_event, row=None, e_start_pos=Non
     if isinstance(binlog_event, WriteRowsEvent) or isinstance(binlog_event, UpdateRowsEvent) \
             or isinstance(binlog_event, DeleteRowsEvent):
         pattern = generate_sql_pattern(binlog_event, row=row, flashback=flashback, no_pk=no_pk)
-        # time = datetime.datetime.fromtimestamp(binlog_event.timestamp)
-        time = binlog_event.timestamp
+        time = datetime.datetime.fromtimestamp(binlog_event.timestamp).isoformat()
+        # time = binlog_event.timestamp
         sql = '%s %s %s ' % (time, e_start_pos, binlog_event.packet.log_pos)
         sql += cursor.mogrify(pattern['template'], pattern['values'])
     elif flashback is False and isinstance(binlog_event, QueryEvent) and binlog_event.query != 'BEGIN' \
